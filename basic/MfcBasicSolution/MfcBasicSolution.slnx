@@ -1,0 +1,9 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="MFCPrac/MFCPrac.vcxproj" />
+  <Project Path="Win32ControlsApp/Win32ControlsApp.vcxproj" Id="9803dfc9-4617-4ef5-b22a-e887f3c3ec4f" />
+  <Project Path="Win32FirstApp/Win32FirstApp.vcxproj" Id="7c311759-8148-43f8-a122-d4b91b1a5d5f" />
+</Solution>
