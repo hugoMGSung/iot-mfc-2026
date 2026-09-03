@@ -136,6 +136,7 @@ WndProc(
 
 - Visual Studio 2026
   - 도구 > 도구 및 기능 가져오기...
+- Visual Studio Installer 화면에서
 
 ![](assets/20260901_121015_image.png)
 
@@ -401,18 +402,249 @@ void CMFCBasicDlg::OnBnClickedButtonOk()
   - Win32 API -> WndProc + WM_MESSAGES + HWND
   - MFC -> CDialogEx + Message Map + CButton
 
+#### Resource Editor
 
-##### MFC 학습 순서
+Visual Studio 가 제공하는 **GUI 디자이**너 기능. C# WinForms의 Form Designer와 같은 역할
+
+기능은 동일하지만 C# WinForms보다 제약사항이 많고, 대부분 코딩으로 처리를 해야 함
+
+리소스 뷰(Ctrl + Shift + E)
+
+![](assets/20260903_093523_image.png)
+
+- MDI의 경우에 생성되는 리소스 구조
+
+![](assets/20260903_094731_image.png)
+
+- STATIC, EDIT, BUTTON 세개로 구성
+- MFC에서 추천하는 이름은 일반적으로 IDC_ Prefix 사용
+
+##### ID가 가장 중요
+
+ID로 코드에서 제어
+
+##### 탭 오더
+
+윈폼 탭으로 컨트롤 이동시 순서 지정
+
+디자인 레이아웃 창에서 Ctrl + D
+
+![](assets/20260903_095240_image.png)
+
+- 번호를 클릭해서 변경
+
+##### 로그인 화면 만들기
+
+![](assets/20260903_102108_image.png)
+
+- STATIC 2개, EDIT 2개, BUTTON 2개 구성
+- 디자인 후 Resource.h 확인
+
+```cpp
+//{{NO_DEPENDENCIES}}
+// Microsoft Visual C++에서 생성한 포함 파일입니다.
+// MFCControls.rc에서 사용되고 있습니다.
+//
+#define IDC_BTN_LOGIN                   2
+#define IDD_MFCCONTROLS_DIALOG          102
+#define IDR_MAINFRAME                   128
+#define IDC_EDIT_ID                     1000
+#define IDC_STATIC_ID                   1002
+#define IDC_STATIC_PW                   1003
+#define IDC_EDIT_PW                     1004
+#define IDC_BTN_CANCEL                  1005
+```
+
+##### 이벤트 처리
+
+```cpp
+	// 컨트롤에 있는 캡션을 변수 할당
+	CString strID;
+	GetDlgItemText(IDC_EDIT_ID, strID);
+
+	CString strPW;
+	GetDlgItemText(IDC_EDIT_PW, strPW);
+
+	// 입력검증(Validation Check)
+	if (strID.IsEmpty()) {
+		AfxMessageBox(L"아이디를 입력하세요.");
+		return;
+	}
+
+	if (strPW.IsEmpty()) {
+		AfxMessageBox(L"패스워드를 입력하세요.");
+		return;
+	}
+
+	//AfxMessageBox(strID);
+
+	if (strID == L"admin" && strPW == L"p@ssw0rd!") {
+		AfxMessageBox(L"관리자 로그인!");
+	}
+	else {
+		AfxMessageBox(L"로그인 실패!!!");
+	}
+
+	//CString msg;
+	//msg = strID + L"님 환영합니다!!";
+
+	//AfxMessageBox(msg);
+```
+
+![](assets/20260903_103900_image.png)
+
+- 관리자 로그인 처리
+- 입력검증 ID, PW
+
+![](assets/20260903_104448_image.png)
+
+- 실행결과
+
+#### DDX / DDV
+
+```csharp
+TxtName.Text // C# 방식
+```
+
+- C# 방식. 아주 간단
+
+```cpp
+UpdateData(TRUE);
+```
+
+- MFC 방식
+
+##### 현재 예제 문제점
+
+만약 컨트롤이 20개 있으면
+
+```cpp
+GetDlgItemText(IDC_..., var1);
+GetDlgItemText(IDC_..., var2);
+GetDlgItemText(IDC_..., var3);
+GetDlgItemText(IDC_..., var4);
+GetDlgItemText(IDC_..., var5);
+GetDlgItemText(IDC_..., var6);
+....
+GetDlgItemText(IDC_..., var20);
+```
+
+이런 불편한 점을 개선한것이 DDX
+
+- Dialog와 변수 사이의 데이터를 자동으로 교환하는 기능
+
+##### 로그인 예제를 DDX로 변경
+
+![](assets/20260903_111133_image.png)
+
+- 다이얼로그 Context Menu > 변수 추가 선택
+
+![](assets/20260903_111243_image.png)
+
+- ID Edit 컨트롤 선택 상태에서 > Context Menu > 변수 추가
+
+![](assets/20260903_111631_image.png)
+
+- 아이디 컨트롤 내 값 담을 수 있는 변수 추가
+
+```cpp
+public:
+	afx_msg void OnBnClickedBtnLogin();
+	afx_msg void OnBnClickedBtnCancel();
+	// 아이디 값 변수
+	CString m_editID;
+	// 패스워드 변수 값
+	CString m_editPW;
+};
+```
+
+- MFCControlsDlg.h에 위와 같이 추가 확인
+
+```cpp
+void CMFCControlsDlg::DoDataExchange(CDataExchange* pDX)
+{
+	CDialogEx::DoDataExchange(pDX);
+	DDX_Text(pDX, IDC_EDIT_ID, m_editID);
+	DDX_Text(pDX, IDC_EDIT_PW, m_editPW);
+}
+
+```
+
+- MFCControlsDlg.cpp 에 DoDataExchange() 함수에 추가된 내용 확인
+- OnBnClickedBtnLogin() 함수내 작성 내용 삭제
+
+```cpp
+UpdateData(TRUE);
+
+AfxMessageBox(m_editID);
+```
+
+- GetDlgItemText() 가 컨트롤별로 수행할 필요가 없음
+- UpdateData(TRUE) : 데이터 읽기
+- UpdateData(FALSE) : 데이터 쓰기
+
+여기까지가 DDX Value로 처리하는 방식임
+
+##### DDX Control
+
+변수값이 아닌 컨트롤 자체를 제어하고자 할때 사용
+
+- 로그인을 성공하고 난뒤 아이디 입력창 비활성화
+- 포커스 이동
+
+과 같은 작업에 DDX Control 사용
+
+- 다이얼로그 창 > Context Menu > 변수 선택
+- 범주 컨트롤 선택, m_controlID, m_controlPW 추가
+- 로그인 버튼, m_btnLogin 로 변수 추가
+
+```cpp
+	DDX_Control(pDX, IDC_EDIT_ID, m_controlID);
+	DDX_Control(pDX, IDC_EDIT_PW, m_controlPW);
+	DDX_Control(pDX, IDC_BTN_LOGIN, m_btnLogin);
+```
+
+- DoDataExchange() 함수에 추가된 로직 확인
+
+![](assets/20260903_114634_image.png)
+
+- SetWindowText() : 실행 후 로그인 버튼 클릭하면, IDC_EDIT_ID 컨트롤에 admin 텍스트 할당
+
+![](assets/20260903_114847_image.png)
+
+- GetWindowText() : 컨트롤의 텍스트를 변수에 할당, GetDlgItemText()와 동일
+
+##### DDV
+
+Dialog Data Validation. 컨트롤에 제대로 된 입력값이 들어갔는지 검증
+
+```cpp
+void CMFCControlsDlg::DoDataExchange(CDataExchange* pDX)
+{
+    CDialogEx::DoDataExchange(pDX);
+...
+    // ID를 20자로 제한!
+    DDV_MaxChars(pDX, m_editID, 20);
+}
+```
+
+![](assets/20260903_121631_image.png)
+
+- 아이디를 20자 이상 입력했을때 실행화면
+- DDV 함수 종류 : DDV_MinMaxInt(), DDV_MinMaxUInt(), DDV_MinMaxDouble(),
+
+
+#### MFC 학습 순서
 
 1. [X]  Dialog Based MFC
 2. [X]  CWinApp / CDialogEx 이해
-3. [ ]  Resource Editor
-4. [ ]  Button / Static / Edit / CheckBox / Radio Button 컨트롤 학습
-5. [ ]  컨트롤 사용 간단 프로젝트
-6. [ ]  Message Map 이해
-7. [ ]  이벤트 처리 방법 이해
-8. [ ]  컨트롤 값 읽기 / 쓰기
-9. [ ]  DDX / DDV
+3. [X]  Resource Editor
+4. [X]  Button / Static / Edit / CheckBox / Radio Button 컨트롤 학습
+5. [X]  컨트롤 사용 간단 프로젝트
+6. [X]  Message Map 이해
+7. [X]  이벤트 처리 방법 이해
+8. [X]  컨트롤 값 읽기 / 쓰기
+9. [X]  DDX / DDV
 10. [ ]  Timer
 11. [ ]  메뉴 / 파일 Dialog
 12. [ ]  SDI(Single Document Interface)
