@@ -633,7 +633,6 @@ void CMFCControlsDlg::DoDataExchange(CDataExchange* pDX)
 - 아이디를 20자 이상 입력했을때 실행화면
 - DDV 함수 종류 : DDV_MinMaxInt(), DDV_MinMaxUInt(), DDV_MinMaxDouble(),
 
-
 #### 회원로그인 화면 만들기
 
 ![](assets/20260904_092958_image.png)
@@ -659,7 +658,42 @@ void CMFCControlsDlg::DoDataExchange(CDataExchange* pDX)
   - IDC_STATIC_STATUS : CStatic m_staticStatus
   - IDC_BTN_LOGIN : CButton m_btnLogin
 
+##### DDX 사용시 발생 오류
 
+![](assets/20260904_101519_image.png)
+
+- DDX 설정 시 컨트롤 속성이 알맞지 않으면 발생하는 오류
+- 예) 라디오버튼 여러개일때 첫번째 컨트롤은 그룹 속성 True, 나머지는 False
+
+##### 대화상자 기반 MFC 닫기버튼 추가
+
+- 리소스뷰에서 Dialog 선택
+- 다이얼로그 전체 선택 후 속성
+- 테두리(Border) > Resizing으로 선택
+- 시스템메뉴(System Menu) > True로 변경
+- 최소화 상자, 최대화 상자 활성화 됨
+
+또는 코드로 작성가능
+
+```cpp
+BOOL CMFCControlsDlg::OnInitDialog()
+{
+	CDialogEx::OnInitDialog();
+
+	// 코드로 닫기버튼 추가!
+	ModifyStyle(
+		0,
+		WS_MINIMIZEBOX |
+		WS_MAXIMIZEBOX |
+		WS_THICKFRAME |
+		WS_SYSMENU
+	);
+ ...
+```
+
+![](assets/20260904_104133_image.png)
+
+- 실행결과
 
 #### MFC 학습 순서
 

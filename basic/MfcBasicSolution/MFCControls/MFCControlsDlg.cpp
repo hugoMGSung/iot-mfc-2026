@@ -43,6 +43,8 @@ void CMFCControlsDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CMFCControlsDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_BTN_LOGIN, &CMFCControlsDlg::OnBnClickedBtnLogin)
+	ON_BN_CLICKED(IDC_BTN_CANCEL, &CMFCControlsDlg::OnBnClickedBtnCancel)
 END_MESSAGE_MAP()
 
 
@@ -51,6 +53,15 @@ END_MESSAGE_MAP()
 BOOL CMFCControlsDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
+
+	// 코드로 닫기버튼 추가!
+	ModifyStyle(
+		0,
+		WS_MINIMIZEBOX |
+		WS_MAXIMIZEBOX |
+		WS_THICKFRAME |
+		WS_SYSMENU
+	);
 
 	// 이 대화 상자의 아이콘을 설정합니다.  응용 프로그램의 주 창이 대화 상자가 아닐 경우에는
 	//  프레임워크가 이 작업을 자동으로 수행합니다.
@@ -98,3 +109,56 @@ HCURSOR CMFCControlsDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+void CMFCControlsDlg::OnBnClickedBtnLogin()
+{
+	UpdateData(TRUE);
+
+	if (m_strID.IsEmpty()) {
+		AfxMessageBox(L"아이디를 입력하세요.");
+		m_editID.SetFocus(); // 포커스 재지정
+		return;
+	}
+
+	// 실제 DB와 연동 
+	if (m_nUserType == 0) {
+		// 사용자
+		//AfxMessageBox(L"사용자 권한");
+		if (m_strID == L"hugo" && m_strPW == "p@ssw0rd") {
+			if (m_bAutoLogin) {
+				AfxMessageBox(L"사용자(자동 로그인), " + m_strID + L" 로그인 성공!!!");
+				m_staticStatus.SetWindowTextW(L"상태 : 로그인 성공");
+			}
+			else {
+				AfxMessageBox(L"사용자(수동 로그인), " + m_strID + L" 로그인 성공!!!");
+				m_staticStatus.SetWindowTextW(L"상태 : 로그인 성공");
+			}
+			return;
+		}
+		else {
+			AfxMessageBox(L"사용자 로그인 실패!");
+			m_staticStatus.SetWindowTextW(L"상태 : 로그인 실패");
+			return;
+		}
+	}
+	else {
+		//AfxMessageBox(L"관리자 권한");
+
+		if (m_strID == L"admin" && m_strPW == L"123456") {
+			// 관리자 로그인 성공
+			AfxMessageBox(L"관리자 로그인 성공!!!");
+			return;
+		}
+		else {
+			// 관리자 로그인 실패
+			AfxMessageBox(L"관리자 로그인 실패!");
+			return;
+		}
+	}	
+}
+
+void CMFCControlsDlg::OnBnClickedBtnCancel()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다
+	CDialogEx::OnCancel();
+}

@@ -42,4 +42,6 @@ public:
 	CEdit m_editID;
 	CStatic m_staticStatus;
 	CButton m_btnLogin;
+	afx_msg void OnBnClickedBtnLogin();
+	afx_msg void OnBnClickedBtnCancel();
 };

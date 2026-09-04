@@ -2,8 +2,8 @@
 // Microsoft Visual C++에서 생성한 포함 파일입니다.
 // MFCControls.rc에서 사용되고 있습니다.
 //
-#define IDC_BTN_LOGIN                   103
 #define IDD_MFCCONTROLS_DIALOG          102
+#define IDC_BTN_LOGIN                   111
 #define IDR_MAINFRAME                   128
 #define IDC_EDIT_ID                     1000
 #define IDC_STATIC_ID                   1002
