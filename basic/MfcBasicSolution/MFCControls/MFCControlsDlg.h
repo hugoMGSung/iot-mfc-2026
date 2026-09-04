@@ -31,14 +31,15 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
 public:
-	afx_msg void OnBnClickedBtnLogin();
-	afx_msg void OnBnClickedBtnCancel();
-	// 아이디 값 변수
-	CString m_editID;
-	// 패스워드 변수 값
-	CString m_editPW;
-	// 컨트롤 변수
-	CEdit m_controlID;
-	CEdit m_controlPW;
+
+	// DDX Value
+	CString m_strID;
+	CString m_strPW;
+	BOOL m_bAutoLogin;
+	int m_nUserType;
+
+	// DDX Control
+	CEdit m_editID;
+	CStatic m_staticStatus;
 	CButton m_btnLogin;
 };

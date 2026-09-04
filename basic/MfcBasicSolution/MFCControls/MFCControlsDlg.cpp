@@ -19,8 +19,10 @@
 
 CMFCControlsDlg::CMFCControlsDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_MFCCONTROLS_DIALOG, pParent)
-	, m_editID(_T(""))
-	, m_editPW(_T(""))
+	, m_strID(_T(""))
+	, m_strPW(_T(""))
+	, m_bAutoLogin(FALSE)
+	, m_nUserType(0)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -28,22 +30,19 @@ CMFCControlsDlg::CMFCControlsDlg(CWnd* pParent /*=nullptr*/)
 void CMFCControlsDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
-	DDX_Text(pDX, IDC_EDIT_ID, m_editID);
-	DDX_Text(pDX, IDC_EDIT_PW, m_editPW);
+	DDX_Text(pDX, IDC_EDIT_ID, m_strID);
+	DDX_Text(pDX, IDC_EDIT_PW, m_strPW);
+	DDX_Check(pDX, IDC_CHK_AUTOLOGIN, m_bAutoLogin);
+	DDX_Radio(pDX, IDC_RDO_USER, m_nUserType);
 
-	DDX_Control(pDX, IDC_EDIT_ID, m_controlID);
-	DDX_Control(pDX, IDC_EDIT_PW, m_controlPW);
+	DDX_Control(pDX, IDC_EDIT_ID, m_editID);
+	DDX_Control(pDX, IDC_STATIC_STATUS, m_staticStatus);
 	DDX_Control(pDX, IDC_BTN_LOGIN, m_btnLogin);
-
-	// ID를 20자로 제한!
-	DDV_MaxChars(pDX, m_editID, 20);
 }
 
 BEGIN_MESSAGE_MAP(CMFCControlsDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
-	ON_BN_CLICKED(IDC_BTN_LOGIN, &CMFCControlsDlg::OnBnClickedBtnLogin)
-	ON_BN_CLICKED(IDC_BTN_CANCEL, &CMFCControlsDlg::OnBnClickedBtnCancel)
 END_MESSAGE_MAP()
 
 
@@ -99,34 +98,3 @@ HCURSOR CMFCControlsDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
-
-void CMFCControlsDlg::OnBnClickedBtnLogin()
-{
-	UpdateData(TRUE); // DDX! GetDlgItemText() 함수 호출 대체
-
-	//// 입력검증(Validation Check)
-	if (m_editID.IsEmpty()) {
-		AfxMessageBox(L"아이디를 입력하세요.");
-		return;
-	}
-
-	if (m_editPW.IsEmpty()) {
-		AfxMessageBox(L"패스워드를 입력하세요.");
-		return;
-	}
-
-	//AfxMessageBox(strID);
-
-	if (m_editID == L"admin" && m_editPW == L"p@ssw0rd!") {
-		AfxMessageBox(L"관리자 로그인!");
-	}
-	else {
-		AfxMessageBox(L"로그인 실패!!!");
-	}
-}
-
-void CMFCControlsDlg::OnBnClickedBtnCancel()
-{
-	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	CDialogEx::OnCancel();
-}

@@ -634,6 +634,33 @@ void CMFCControlsDlg::DoDataExchange(CDataExchange* pDX)
 - DDV 함수 종류 : DDV_MinMaxInt(), DDV_MinMaxUInt(), DDV_MinMaxDouble(),
 
 
+#### 회원로그인 화면 만들기
+
+![](assets/20260904_092958_image.png)
+
+- Static 3 개 : IDC_STATIC_ID, IDC_STATIC_PW(사용X), IDC_STATIC_STATUS(소스코드 사용)
+- Edit 2 개 : IDC_EDIT_ID, IDC_EDIT_PW
+- CheckBox 1개 : IDC_CHK_AUTOLOGIN
+- Radio Button 2개 : IDC_RDO_USER(첫번째 라디오버튼 그룹 속성을 True), IDC_RDO_ADMIN(그룹 속성 False)
+- Button 2개 : IDC_BTN_LOGIN, IDC_BTN_CANCEL
+
+##### DDX(Value) 설정
+
+- 아이디, 패스워트 텍스트박스, 자동 로그인, 라디오 버튼 값 DDX 생성
+  - IDC_EDIT_ID : CString m_strID
+  - IDC_EDIT_PW : CString m_strPW
+  - IDC_CHK_AUTOLOGIN : BOOL m_bAutoLogin
+  - IDC_RDO_USER : int m_nUserType
+
+##### DDX(Control) 설정
+
+- 로그인 버튼, 아이디 에디트, 상태 스태틱 컨트롤 DDX 추가
+  - IDC_EDIT_ID : CEdit m_editID
+  - IDC_STATIC_STATUS : CStatic m_staticStatus
+  - IDC_BTN_LOGIN : CButton m_btnLogin
+
+
+
 #### MFC 학습 순서
 
 1. [X]  Dialog Based MFC
