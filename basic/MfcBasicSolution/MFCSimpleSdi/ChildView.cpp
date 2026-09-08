@@ -48,8 +48,24 @@ void CChildView::OnPaint()
 {
 	CPaintDC dc(this); // 그리기를 위한 디바이스 컨텍스트입니다.
 	
-	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
-	
+	// TODO: 여기에 메시지 처리기 코드를 추가합니다.	
 	// 그리기 메시지에 대해서는 CWnd::OnPaint()를 호출하지 마십시오.
+	CString str = L"MFC ChildView CString";
+	dc.TextOutW(100, 100, str);
+
+	// GDI
+	dc.MoveTo(100, 80); // 선이 시작할 위치로 이동
+	dc.LineTo(330, 80); // 좌표까지 직선 그리기
+
+	dc.Rectangle(100, 120, 300, 300);
+	dc.Ellipse(100, 120, 300, 300);
+
+	CPen pen;   // 펜 생성
+	pen.CreatePen(PS_SOLID, 5, RGB(255, 0, 0));
+
+	dc.SelectObject(&pen);  // 펜 선택
+
+	dc.MoveTo(100, 340);
+	dc.LineTo(330, 340);
 }
 

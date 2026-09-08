@@ -896,6 +896,7 @@ END_MESSAGE_MAP()
 ```
 
 - 버튼 클릭이나 메뉴 클릭 등 메시지가 발생하는 기능 들은 메시지맵에 자동 추가
+-
 - 체크 메뉴 아이디 ID_MENU_CHECK 로 변경
 - 멤버변수 추가 bool m_bChecked = false
 - 체크 메뉴 이벤트 처리기 추가
@@ -920,6 +921,52 @@ void CMainFrame::OnMenuCheck()
 ![](assets/20260908_103031_image.png)
 
 - 메뉴 체크기능 결과 화면
+- 메뉴에 - 입력하면 가로줄 추가됨
+- 단축키 는 추후 학습 요
+
+##### ChildView
+
+```cpp
+void CChildView::OnPaint()
+{
+    CPaintDC dc(this); // 그리기를 위한 디바이스 컨텍스트입니다.
+
+    // TODO: 여기에 메시지 처리기 코드를 추가합니다.
+    // 그리기 메시지에 대해서는 CWnd::OnPaint()를 호출하지 마십시오.
+    dc.TextOutW(100, 100, L"MFC ChildView");
+}
+
+```
+
+- Win32 API에서 WM_PAINT 와 같은 역할
+
+![](assets/20260908_103843_image.png)
+
+##### GDI
+
+- 윈도우 앱에서 그림을 그리는 인터페이스 기능
+- OnPaint() 에 진행
+
+```cpp
+	// GDI
+	dc.MoveTo(100, 80); // 선이 시작할 위치로 이동
+	dc.LineTo(330, 80); // 좌표까지 직선 그리기
+
+	dc.Rectangle(100, 120, 300, 300);
+	dc.Ellipse(100, 120, 300, 300);
+
+	CPen pen;   // 펜 생성
+	pen.CreatePen(PS_SOLID, 5, RGB(255, 0, 0));
+
+	dc.SelectObject(&pen);  // 펜 선택
+
+	dc.MoveTo(100, 340);
+	dc.LineTo(330, 340);
+```
+
+![](assets/20260908_105202_image.png)
+
+- 실행결과
 
 #### MFC 학습 순서
 
