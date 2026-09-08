@@ -968,6 +968,73 @@ void CChildView::OnPaint()
 
 - 실행결과
 
+##### MFC 마우스/키보드
+
+- 마우스 메시지
+  - WM_LBUTTONDOWN -> OnLButtonDown()
+  - WM_LBUTTONUP -> OnLButtonUp()
+  - WM_MOUSEMOVE -> OnMouseMove()
+  - WM_RBUTTONDOWN -> OnRButtonDown()
+
+```cpp
+void CChildView::OnLButtonDown(UINT nFlags, CPoint point) {
+	CString str;
+
+	str.Format(L"(%d, %d)", point.x, point.y);
+
+	AfxMessageBox(str);
+
+	CWnd::OnLButtonDown(nFlags, point);
+}
+```
+
+![](assets/20260908_112451_image.png)
+
+- 마우스 왼쪽 버튼 클릭이벤트 실행결과
+
+```cpp
+void CChildView::OnMouseMove(UINT nFlags, CPoint point) {
+	CString str;
+
+	str.Format(L"x=%d, y=%d", point.x, point.y);
+	GetParent()->SetWindowText(str); // 부모창(MainFrame)의 제목표시줄에 str를 할당
+
+	CWnd::OnMouseMove(nFlags, point);
+}
+```
+
+![](assets/20260908_113016_image.png)
+
+- MouseMove 실행결과
+
+```cpp
+private:
+	CPoint m_ptClick;  // 클릭한 위치 기억 변수
+```
+
+- 마우스 클릭 위치 저장변수
+
+```cpp
+	m_ptClick = point;
+
+	Invalidate();  // 화면 다시그리기 요청 함수
+
+	CWnd::OnLButtonDown(nFlags, point);
+```
+
+- OnLButtonDown에 위 코드 추가
+
+```cpp
+	dc.Ellipse(
+		m_ptClick.x - 30,
+		m_ptClick.y - 30,
+		m_ptClick.x + 30,
+		m_ptClick.y + 30
+	);  // 마우스 클릭시마다 원 변경
+```
+
+- OnPaint() 아래 원그리기 함수 추가
+
 #### MFC 학습 순서
 
 1. [x] Dialog Based MFC

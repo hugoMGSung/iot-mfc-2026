@@ -31,6 +31,14 @@ public:
 	// 생성된 메시지 맵 함수
 protected:
 	afx_msg void OnPaint();
+	// 마우스 이벤트 함수 선언
+	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
+	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+	afx_msg void OnRButtonDown(UINT nFlags, CPoint point);
 	DECLARE_MESSAGE_MAP()
+
+private:
+	CPoint m_ptClick;  // 클릭한 위치 기억 변수
 };
 

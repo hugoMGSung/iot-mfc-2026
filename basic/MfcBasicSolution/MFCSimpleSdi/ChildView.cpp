@@ -23,8 +23,14 @@ CChildView::~CChildView()
 }
 
 
+// ChildView에서만 마우스 위치, 이벤트처리하려면 여기 작성
 BEGIN_MESSAGE_MAP(CChildView, CWnd)
 	ON_WM_PAINT()
+
+	ON_WM_LBUTTONDOWN()
+	ON_WM_LBUTTONUP()
+	ON_WM_MOUSEMOVE()
+	ON_WM_RBUTTONDOWN()
 END_MESSAGE_MAP()
 
 
@@ -67,5 +73,46 @@ void CChildView::OnPaint()
 
 	dc.MoveTo(100, 340);
 	dc.LineTo(330, 340);
+
+	dc.Ellipse(
+		m_ptClick.x - 30,
+		m_ptClick.y - 30,
+		m_ptClick.x + 30,
+		m_ptClick.y + 30
+	);  // 마우스 클릭시마다 원 변경 
 }
 
+/* afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
+	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+	afx_msg void OnRButtonDown(UINT nFlags, CPoint point); */
+
+
+void CChildView::OnLButtonDown(UINT nFlags, CPoint point) {
+	CString str;
+	str.Format(L"(%d, %d)", point.x, point.y);	
+	// AfxMessageBox(str);
+
+	m_ptClick = point;
+
+	Invalidate();  // 화면 다시그리기 요청 함수
+
+	CWnd::OnLButtonDown(nFlags, point);
+}
+
+void CChildView::OnLButtonUp(UINT nFlags, CPoint point) {
+
+}
+
+void CChildView::OnMouseMove(UINT nFlags, CPoint point) {
+	CString str;
+
+	str.Format(L"x=%d, y=%d", point.x, point.y);
+	GetParent()->SetWindowText(str); // 부모창(MainFrame)의 제목표시줄에 str를 할당
+
+	CWnd::OnMouseMove(nFlags, point);
+}
+
+void CChildView::OnRButtonDown(UINT nFlags, CPoint point) {
+	AfxMessageBox(L"Right Button Clicked");
+}
