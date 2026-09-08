@@ -33,6 +33,7 @@ public:
 #endif
 
 protected:  // 컨트롤 모음이 포함된 멤버입니다.
+	CToolBar          m_wndToolBar;
 	CStatusBar        m_wndStatusBar;
 	CChildView    m_wndView;
 
@@ -42,6 +43,10 @@ protected:
 	afx_msg void OnSetFocus(CWnd *pOldWnd);
 	DECLARE_MESSAGE_MAP()
 
+public:
+	bool m_bChecked = false;
+	afx_msg void OnPracMsg();
+	afx_msg void OnMenuCheck();
 };
 
 

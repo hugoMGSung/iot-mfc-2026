@@ -19,6 +19,8 @@ IMPLEMENT_DYNAMIC(CMainFrame, CFrameWnd)
 BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_WM_CREATE()
 	ON_WM_SETFOCUS()
+	ON_COMMAND(ID_PRAC_MSG, &CMainFrame::OnPracMsg)
+	ON_COMMAND(ID_MENU_CHECK, &CMainFrame::OnMenuCheck)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -52,12 +54,25 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 	}
 
+	if (!m_wndToolBar.CreateEx(this, TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC) ||
+		!m_wndToolBar.LoadToolBar(IDR_MAINFRAME))
+	{
+		TRACE0("도구 모음을 만들지 못했습니다.\n");
+		return -1;      // 만들지 못했습니다.
+	}
+
 	if (!m_wndStatusBar.Create(this))
 	{
 		TRACE0("상태 표시줄을 만들지 못했습니다.\n");
 		return -1;      // 만들지 못했습니다.
 	}
 	m_wndStatusBar.SetIndicators(indicators, sizeof(indicators)/sizeof(UINT));
+
+	// TODO: 도구 모음을 도킹할 수 없게 하려면 이 세 줄을 삭제하십시오.
+	//m_wndToolBar.EnableDocking(CBRS_ALIGN_ANY);
+	//EnableDocking(CBRS_ALIGN_ANY);
+	//DockControlBar(&m_wndToolBar);
+
 
 	return 0;
 }
@@ -107,3 +122,23 @@ BOOL CMainFrame::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO*
 	return CFrameWnd::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo);
 }
 
+
+void CMainFrame::OnPracMsg()
+{
+	AfxMessageBox(L"Hello, MFC!");
+}
+
+void CMainFrame::OnMenuCheck()
+{
+    CMenu* pMenu = GetMenu();
+
+	m_bChecked = !m_bChecked;
+
+	pMenu->CheckMenuItem(
+		ID_MENU_CHECK,
+		MF_BYCOMMAND |
+		(m_bChecked ? MF_CHECKED : MF_UNCHECKED)
+	);
+
+	// TODO : 체크가 되었을때 처리로직과 체크해제시 로직 분리 작성
+}
