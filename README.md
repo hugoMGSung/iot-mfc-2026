@@ -1035,6 +1035,11 @@ private:
 
 - OnPaint() 아래 원그리기 함수 추가
 
+
+https://github.com/user-attachments/assets/540ef5ed-f58e-4123-b381-53a579dd118e
+
+
+
 #### MFC 학습 순서
 
 1. [x] Dialog Based MFC
