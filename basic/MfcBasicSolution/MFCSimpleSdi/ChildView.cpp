@@ -6,11 +6,7 @@
 #include "framework.h"
 #include "MFCSimpleSdi.h"
 #include "ChildView.h"
-
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
-
+#include "MainFrm.h"
 
 // CChildView
 
@@ -109,6 +105,9 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point) {
 	CString str;
 	str.Format(L"(%d, %d)", point.x, point.y);	
 	// AfxMessageBox(str);
+
+	CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd(); 
+	pFrame->SetStatusText(str);
 
 	m_ptClick = point;
 

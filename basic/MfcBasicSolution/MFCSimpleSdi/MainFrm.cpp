@@ -7,6 +7,7 @@
 #include "MFCSimpleSdi.h"
 
 #include "MainFrm.h"
+#include "CTestDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -22,6 +23,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_COMMAND(ID_PRAC_MSG, &CMainFrame::OnPracMsg)
 	ON_COMMAND(ID_MENU_CHECK, &CMainFrame::OnMenuCheck)
 	ON_COMMAND(ID_TOOL_PRAC, &CMainFrame::OnToolPrac)
+	ON_COMMAND(ID_FILE_OPEN, &CMainFrame::OnFileOpen)
+	ON_COMMAND(ID_FILE_SAVE, &CMainFrame::OnFileSave)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -127,6 +130,10 @@ BOOL CMainFrame::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO*
 void CMainFrame::OnPracMsg()
 {
 	AfxMessageBox(L"Hello, MFC!");
+
+	CTestDlg dlg;
+
+	dlg.DoModal();
 }
 
 void CMainFrame::OnMenuCheck()
@@ -147,4 +154,48 @@ void CMainFrame::OnMenuCheck()
 void CMainFrame::OnToolPrac()
 {	
 	OnPracMsg(); // 이전에 만들었던 메뉴 클릭함수 호출
+}
+
+void CMainFrame::SetStatusText(CString str)
+{
+	m_wndStatusBar.SetPaneText(0, str);
+}
+
+void CMainFrame::OnFileOpen()
+{
+	CFileDialog dlg(
+		TRUE,
+		L"txt",
+		NULL,
+		OFN_FILEMUSTEXIST | OFN_HIDEREADONLY,
+		L"텍스트 파일 (*.txt)|*.txt|모든 파일 (*.*)|*.*||"
+		);
+	CString path;
+
+	if (dlg.DoModal() == IDOK) {
+		// 파일을 선택했으면 처리
+		path = dlg.GetPathName();
+
+		m_wndStatusBar.SetPaneText(0, path);
+	}
+}
+
+void CMainFrame::OnFileSave()
+{
+	CFileDialog dlg(
+		FALSE,
+		L"txt",
+		NULL,
+		OFN_FILEMUSTEXIST | OFN_HIDEREADONLY,
+		L"텍스트 파일 (*.txt)|*.txt|모든 파일 (*.*)|*.*||"
+	);
+	CString path;
+
+	if (dlg.DoModal() == IDOK) {
+		// 파일을 선택했으면 처리
+		path = dlg.GetPathName();
+
+		m_wndStatusBar.SetPaneText(0, path);
+	}
+
 }

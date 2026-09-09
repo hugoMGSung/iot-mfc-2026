@@ -1162,10 +1162,121 @@ void CMainFrame::OnToolPrac()
 
 - 메뉴 클릭 함수를 그대로 호출
 
+##### 상태바
+
+- 프로그램 내 여러 상태를 표시하는 컨트롤
+
+```cpp
+static UINT indicators[] =
+{
+	ID_SEPARATOR,         // 상태 줄 표시기
+	ID_INDICATOR_CAPS,    // 캡락
+	ID_INDICATOR_NUM,     // 넘버락
+	ID_INDICATOR_SCRL,    // 스크롤락
+};
+
+
+```
+
+- 상태바 객체변수는 MainFrame에 protected로 선언되어 자식창에서 접근불가
+
+```cpp
+void CMainFrame::SetStatusText(CString str)
+{
+	m_wndStatusBar.SetPaneText(0, str);
+}
+```
+
+```cpp
+#include "MainFrm.h"
+```
+
+- ChildView.cpp에 MainFrm.h 추가
+
+```cpp
+void CChildView::OnLButtonDown(UINT nFlags, CPoint point) {
+	CString str;
+	str.Format(L"(%d, %d)", point.x, point.y);
+
+	CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();  // 부모창 MainFrame 포인터 가져오기
+	pFrame->SetStatusText(str); // 상태바 표시함수 호출
+        ...
+
+```
+
+![](assets/20260909_112109_image.png)
+
+- 마우스 클릭위치 표시
+
 ##### Dialog
 
 - Dialog Based MFC와 동일
 - SDI나 MDI에서 파일오픈, 파일저장 등의 추가 팝업창을 띄울 때 사용
+
+![](assets/20260909_112654_image.png)
+
+- 메뉴에서 열기(ID_FILE_OPEN), 저장(ID_FILE_SAVE) 생성
+
+![](assets/20260909_113020_image.png)
+
+- 클래스 마법사 사용시 `클래스 이름` 선택 주의!
+
+```cpp
+void CMainFrame::OnFileOpen()
+{
+	CFileDialog dlg(
+		TRUE,
+		L"txt",
+		NULL,
+		OFN_FILEMUSTEXIST | OFN_HIDEREADONLY,
+		L"텍스트 파일 (*.txt)|*.txt|모든 파일 (*.*)|*.*||"
+		);
+	CString path;
+
+	if (dlg.DoModal() == IDOK) {
+		// 파일을 선택했으면 처리
+		path = dlg.GetPathName();
+
+		m_wndStatusBar.SetPaneText(0, path);
+	}
+}
+```
+
+![](assets/20260909_113929_image.png)
+
+- 파일 오픈 다이얼로그
+
+```cpp
+CFileDialog dlg(
+		FALSE,     // 파일 저장
+		L"txt",
+		NULL,
+		OFN_FILEMUSTEXIST | OFN_HIDEREADONLY,
+		L"텍스트 파일 (*.txt)|*.txt|모든 파일 (*.*)|*.*||"
+		);
+```
+
+##### Custom Dialog
+
+- 메뉴 프로젝트 > 클래스 마법사 > 클래스 추가 > MFC 클래스
+
+![](assets/20260909_120300_image.png)
+
+- 입력 후 확인
+
+```cpp
+void CMainFrame::OnPracMsg()
+{
+	AfxMessageBox(L"Hello, MFC!");
+
+	CTestDlg dlg;   // include 필요!
+	dlg.DoModal();
+}
+```
+
+![](assets/20260909_120642_image.png)
+
+- 커스텀 다이얼로그 실행화면
 
 #### MFC 학습 순서
 
@@ -1182,8 +1293,8 @@ void CMainFrame::OnToolPrac()
 11. [x] SDI(Single Document Interface)
 12. [x] GDI(Graphic Device Interface) : 원, 사각형 그래픽 그리기
 13. [x] 메뉴
-14. [ ] 툴바
-15. [ ] Dialog
-16. [ ] MDI(Multiple DI)
+14. [x] 툴바
+15. [x] Dialog
+16. [ ] ~~MDI(Multiple DI)~~
 17. [ ] 스레드...
 18. [ ] 토이프로젝트 : 메모장(NotePad) 프로젝트
