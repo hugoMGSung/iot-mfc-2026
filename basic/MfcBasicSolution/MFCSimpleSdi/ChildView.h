@@ -40,5 +40,12 @@ protected:
 
 private:
 	CPoint m_ptClick;  // 클릭한 위치 기억 변수
+	bool m_bDrag = false;		// 마우스 드래그 여부 변수
+	CPoint m_ptCircle = CPoint(200, 200);  // 원그릴 포인트 위치 초기화
+	CPoint m_ptBox = CPoint(100, 100);  // 키보드로 옮길 박스 위치
+public:
+	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+	afx_msg void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags);
+	afx_msg void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
 };
 

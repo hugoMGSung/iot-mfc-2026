@@ -21,6 +21,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_WM_SETFOCUS()
 	ON_COMMAND(ID_PRAC_MSG, &CMainFrame::OnPracMsg)
 	ON_COMMAND(ID_MENU_CHECK, &CMainFrame::OnMenuCheck)
+	ON_COMMAND(ID_TOOL_PRAC, &CMainFrame::OnToolPrac)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -141,4 +142,9 @@ void CMainFrame::OnMenuCheck()
 	);
 
 	// TODO : 체크가 되었을때 처리로직과 체크해제시 로직 분리 작성
+}
+
+void CMainFrame::OnToolPrac()
+{	
+	OnPracMsg(); // 이전에 만들었던 메뉴 클릭함수 호출
 }

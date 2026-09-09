@@ -47,6 +47,7 @@ public:
 	bool m_bChecked = false;
 	afx_msg void OnPracMsg();
 	afx_msg void OnMenuCheck();
+	afx_msg void OnToolPrac();
 };
 
 

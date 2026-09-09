@@ -31,6 +31,10 @@ BEGIN_MESSAGE_MAP(CChildView, CWnd)
 	ON_WM_LBUTTONUP()
 	ON_WM_MOUSEMOVE()
 	ON_WM_RBUTTONDOWN()
+
+	ON_WM_KEYDOWN()
+	ON_WM_KEYUP()
+	ON_WM_CHAR()
 END_MESSAGE_MAP()
 
 
@@ -79,7 +83,20 @@ void CChildView::OnPaint()
 		m_ptClick.y - 30,
 		m_ptClick.x + 30,
 		m_ptClick.y + 30
-	);  // 마우스 클릭시마다 원 변경 
+	);  // 마우스 클릭시마다 원 변경
+
+	CPen pen2;   // 펜 생성
+	pen2.CreatePen(PS_SOLID, 4, RGB(0, 0, 255));
+	dc.SelectObject(&pen2);  // 펜 선택
+
+	dc.Ellipse(
+		m_ptCircle.x - 30,
+		m_ptCircle.y - 30,
+		m_ptCircle.x + 30,
+		m_ptCircle.y + 30
+	);
+
+	dc.Rectangle(m_ptBox.x, m_ptBox.y, m_ptBox.x + 100, m_ptBox.y + 50);
 }
 
 /* afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
@@ -95,13 +112,15 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point) {
 
 	m_ptClick = point;
 
+	m_bDrag = true;
+
 	Invalidate();  // 화면 다시그리기 요청 함수
 
 	CWnd::OnLButtonDown(nFlags, point);
 }
 
 void CChildView::OnLButtonUp(UINT nFlags, CPoint point) {
-
+	m_bDrag = false;
 }
 
 void CChildView::OnMouseMove(UINT nFlags, CPoint point) {
@@ -110,9 +129,59 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point) {
 	str.Format(L"x=%d, y=%d", point.x, point.y);
 	GetParent()->SetWindowText(str); // 부모창(MainFrame)의 제목표시줄에 str를 할당
 
+	if (m_bDrag) {
+		m_ptCircle = point;
+
+		Invalidate();  // 화면 업데이트
+	}
+
 	CWnd::OnMouseMove(nFlags, point);
 }
 
 void CChildView::OnRButtonDown(UINT nFlags, CPoint point) {
 	AfxMessageBox(L"Right Button Clicked");
+}
+
+void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
+{	
+	//CString str;
+	//str.Format(L"Key=%d", nChar);
+
+	//AfxMessageBox(str);
+	switch (nChar) {
+	case VK_LEFT:
+		m_ptBox.x -= 10;
+		break;
+	case VK_RIGHT:
+		m_ptBox.x += 10;
+		break;
+	case VK_UP:
+		m_ptBox.y -= 10;
+		break;
+	case VK_DOWN:
+		m_ptBox.y += 10;
+		break;
+	}
+
+	Invalidate();  // 화면 다시그리기 요청 함수
+
+	CWnd::OnKeyDown(nChar, nRepCnt, nFlags);
+}
+
+void CChildView::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+	//AfxMessageBox(L"Key Up");
+
+	CWnd::OnKeyUp(nChar, nRepCnt, nFlags);
+}
+
+void CChildView::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+	//CString str;
+	//str.Format(L"Key=%d", nChar);
+
+	//AfxMessageBox(str);
+
+	CWnd::OnChar(nChar, nRepCnt, nFlags);
 }
