@@ -1278,6 +1278,449 @@ void CMainFrame::OnPracMsg()
 
 - 커스텀 다이얼로그 실행화면
 
+##### MFC 스레드
+
+- Process와 Thread 차이
+  - Process : 하나의 실행파일
+  - Thread : 실행파일 내 CPU가 실제로 실행하는 작업 흐름. 시분할로 여러개를 나눠서 실행
+
+![](assets/20260910_093027_image.png)
+
+- AfxBeginThread() 함수로 시작
+
+```cpp
+CWinThread* AfxBeginThread(
+    AFX_THREADPROC pfnThreadProc,    // AFX_THREADPROC - Thread 함수의 주소. 이 함수를 실행하라는 의미
+    LPVOID pParam                    // void* - 아무 자료형이나 전달가능
+);
+```
+
+- Thread 함수
+
+```cpp
+UINT ThreadProc(LPVOID pParam) {    // UINT - 종료하면서
+   ....
+   return 0;    // 정상종료
+}
+```
+
+- 스레드 실행
+
+```cpp
+AfxBeginThread(ThreadProc, NULL);
+```
+
+- MFC Dialog 프로젝트
+
+![](assets/20260910_095127_image.png)
+
+![](assets/20260910_095135_image.png)
+
+```cpp
+void CMFCThreadBasicDlg::OnBnClickedBtnThread()
+{
+	AfxBeginThread(ThreadProc, NULL);  // 스레드 호출
+
+	//AfxMessageBox(L"Main Thread");
+	TRACE(L"Main Thread\n");
+}
+
+UINT CMFCThreadBasicDlg::ThreadProc(LPVOID pParam)
+{
+	for (int i = 1; i <= 10; i++) {
+		TRACE(L"Thread : %d\n", i);
+
+		Sleep(1000); // 1초 대기
+	}
+
+	return 0;
+}
+
+```
+
+- 스레드 시작 버튼을 누를때 마다 신규 스레드 계속 생성
+
+```cpp
+void CMFCThreadBasicDlg::OnBnClickedBtnThread()
+{
+	int value = 100;
+
+	AfxBeginThread(ThreadProc, &value);  // 스레드 호출
+
+	//AfxMessageBox(L"Main Thread");
+	TRACE(L"Main Thread\n");
+}
+
+UINT CMFCThreadBasicDlg::ThreadProc(LPVOID pParam)
+{
+	int* pValue = (int*) pParam;
+	int param = *pValue;
+
+	for (int i = 1; i <= 10; i++) {
+		TRACE(L"Thread : %d - %d\n", i, param);
+
+		Sleep(1000); // 1초 대기
+	}
+
+	return 0;
+}
+```
+
+- 파라미터 전달해서 스레드 호출
+- WPF, C# WinForm(Python 동일) 스레드에서 UI를 직접 수정하지 말 것
+
+![](assets/20260910_102314_image.png)
+
+- 프로그레스바 추가
+
+![](assets/20260910_102413_image.png)
+
+- DDX -Control 변수 추가
+
+```cpp
+BOOL CMFCThreadBasicDlg::OnInitDialog()
+{
+	CDialogEx::OnInitDialog();
+	...
+	// TODO: 여기에 추가 초기화 작업을 추가합니다.
+	m_progress.SetRange(0, 1000);
+	m_progress.SetPos(0);
+
+	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
+}
+
+void CMFCThreadBasicDlg::OnBnClickedBtnThread()
+{
+	AfxBeginThread(ThreadProc, this);  // this, Dialog를 Thread에게 전달. UI에 있는 컨트롤 직접 제어
+	TRACE(L"Main Thread\n");
+}
+
+UINT CMFCThreadBasicDlg::ThreadProc(LPVOID pParam)
+{
+	CMFCThreadBasicDlg* pDlg = (CMFCThreadBasicDlg*)pParam;
+
+	for (int i = 0; i <= 1000; i++) {
+		pDlg->m_progress.SetPos(i);   // UI를 제어!
+		Sleep(5); // 50ms 딜레이
+	}
+	return 0;
+}
+
+```
+
+![](assets/20260910_103403_image.png)
+
+- 실행이 잘 될수 있고, 안될 수도 있음
+- Main Thread가 UI를 관리하는데 사용자 스레드가 프로그레스바(UI)를 제어하고 있음
+- 직접 제어하지 말고 메인 스레드에게 UI변경을 요청하도록 변경
+
+```cpp
+#define WM_PROGRESS_UPDATE (WM_USER + 1)  // 프로그레스바위해서 새로 만드는 메시지
+```
+
+- 새로운 윈도우 메시지 생성
+
+```cpp
+BEGIN_MESSAGE_MAP(CMFCThreadBasicDlg, CDialogEx)
+	ON_WM_SYSCOMMAND()
+	ON_WM_PAINT()
+	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_BTN_THREAD, &CMFCThreadBasicDlg::OnBnClickedBtnThread)
+
+	ON_MESSAGE(
+		WM_PROGRESS_UPDATE,
+		&CMFCThreadBasicDlg::OnProgressUpdate)
+END_MESSAGE_MAP()
+
+```
+
+- 다이얼로그 메시지맵에 ON_MESSAGE 추가
+
+```cpp
+afx_msg LRESULT OnProgressUpdate(WPARAM wParam, LPARAM lParam);
+```
+
+- 헤더에 OnProgressUpdate() 선언
+
+```cpp
+UINT CMFCThreadBasicDlg::ThreadProc(LPVOID pParam)
+{
+	CMFCThreadBasicDlg* pDlg = (CMFCThreadBasicDlg*)pParam;
+
+	for (int i = 0; i <= 1000; i++) {
+		//pDlg->m_progress.SetPos(i);
+		// 윈도우 메시지에게 프로그레스바 값 변경을 대신 요청
+		pDlg->PostMessage(WM_PROGRESS_UPDATE, i, 0);
+
+		Sleep(5); // 50ms 딜레이
+	}
+
+	return 0;
+}
+
+LRESULT CMFCThreadBasicDlg::OnProgressUpdate(WPARAM wParam, LPARAM lParam)
+{
+	m_progress.SetPos((int)wParam);
+
+	return LRESULT();
+}
+```
+
+- 결론 : UI스레드(메인스레드)와 사용자스레드는 분리할 것!!
+
+#### 메모장 프로젝트
+
+- SDI 시작
+
+##### ChildView에 Edit Control 추가
+
+```cpp
+public:
+	CEdit m_edit;  // 에디트 컨트롤
+```
+
+##### 메시지맵 추가
+
+```cpp
+BEGIN_MESSAGE_MAP(CChildView, CWnd)
+	ON_WM_CREATE()
+	ON_WM_SIZE()
+```
+
+##### 함수 선언
+
+```cpp
+protected:
+	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	afx_msg void OnSize(UINT nType, int cx, int cy);
+```
+
+##### 함수 정의 구현
+
+```cpp
+int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
+{
+	if (CWnd::OnCreate(lpCreateStruct) == -1)
+		return -1;
+
+	m_edit.Create(
+		WS_CHILD | WS_VISIBLE |
+		WS_BORDER | ES_MULTILINE |
+		ES_AUTOVSCROLL | WS_VSCROLL,
+		CRect(0, 0, 100, 100),  // w 100, h 100
+		this,
+		1000
+	);
+
+	return 0;
+}
+
+void CChildView::OnSize(UINT nType, int cx, int cy)
+{
+	CWnd::OnSize(nType, cx, cy);
+
+	if (m_edit.GetSafeHwnd()) {
+		m_edit.MoveWindow(0, 0, cx, cy);
+	}
+}
+```
+
+##### 메뉴에서 보기 삭제
+
+![](assets/20260910_111538_image.png)
+
+- 실행화면
+
+##### 텍스트 파일 열기
+
+![](assets/20260910_111836_image.png)
+
+- 메뉴 리소스, 열기, 저장메뉴 추가
+- 이벤트 처리기 추가
+
+![](assets/20260910_112953_image.png)
+
+- 클래스 목록에서 CMainFrame으로 반드시 바꿀 것
+
+```cpp
+public:
+	virtual ~CChildView();
+
+	void SetText(const CString& text);
+```
+
+- ChildView 헤더에 SetText() 함수 선언
+
+```cpp
+void CChildView::SetText(const CString& text)
+{
+	m_edit.SetWindowText(text);
+}
+```
+
+- SetText() 구현
+
+![](assets/20260910_113608_image.png)
+
+- 실행화면 - 한글 깨짐
+- CStdioFile - 기본적으로 CP949(ANSI | EUC-KR) 기준으로 텍스트 로드
+- CFile 로 변경 방법
+
+```cpp
+void CMainFrame::OnFileOpen()
+{
+	CFileDialog dlg(
+		TRUE,
+		L"txt",
+		NULL,
+		OFN_FILEMUSTEXIST | OFN_HIDEREADONLY,
+		L"텍스트 파일 (*.txt)|*.txt||");
+
+	if (dlg.DoModal() != IDOK)
+		return;
+
+	CString strPath;
+	strPath = dlg.GetPathName();
+
+	CFile file;
+
+	if (!file.Open(strPath, CFile::modeRead)) {
+		AfxMessageBox(L"파일을 열 수 없습니다.");
+		return;
+	}
+
+	DWORD size = (DWORD)file.GetLength();
+	std::vector<BYTE> buffer(size);
+	file.Read(buffer.data(), size);
+
+	file.Close();
+
+	// UTF-8인지 EUC-KR인지 검사
+	bool bUTF8 = false;
+	int offset = 0;
+
+	if (size >= 3 &&
+		buffer[0] == 0xEF &&
+		buffer[1] == 0xBB &&
+		buffer[2] == 0xBF)
+	{
+		bUTF8 = true;
+		offset = 3;
+	}
+
+	CString strText;
+
+	if (bUTF8) {
+		int len = MultiByteToWideChar(
+			CP_UTF8,
+			0,
+			(LPCCH)(buffer.data() + offset),
+			size - offset,
+			NULL,
+			0);
+
+		MultiByteToWideChar(
+			CP_UTF8,
+			0,
+			(LPCCH)(buffer.data() + offset),
+			size - offset,
+			strText.GetBuffer(len),
+			len);
+
+		strText.ReleaseBuffer(len);
+	}
+	else {
+		int len = MultiByteToWideChar(
+			CP_ACP,
+			0,
+			(LPCCH)buffer.data(),
+			size,
+			NULL,
+			0);
+
+		MultiByteToWideChar(
+			CP_ACP,
+			0,
+			(LPCCH)buffer.data(),
+			size,
+			strText.GetBuffer(len),
+			len);
+
+		strText.ReleaseBuffer(len);
+	}
+
+	m_wndView.SetText(strText);  // ChildView에 추가한 함수 호출
+}
+```
+
+![](assets/20260910_114736_image.png)
+
+- 한글 문제 해결
+
+##### 텍스트 저장
+
+```cpp
+CString GetText();
+```
+
+- ChildView.h 에 선언추가
+
+```cpp
+CString CChildView::GetText()
+{
+	CString str;
+	m_edit.GetWindowText(str);
+	return str;
+}
+```
+
+- ChileView GetText() 함수 구현
+
+```
+void CMainFrame::OnFileSave()
+{
+	CFileDialog dlg(
+		FALSE,
+		L"txt",
+		L"NewFile.txt",    // 기본 이름
+		OFN_OVERWRITEPROMPT,
+		L"텍스트 파일 (*.txt)|*.txt||");
+
+	if (dlg.DoModal() != IDOK)
+		return;
+
+	CString strPath = dlg.GetPathName();
+
+	CString strText = m_wndView.GetText();
+
+	CStringA utf8 = CW2A(strText, CP_UTF8);
+	CFile file;
+
+	if (!file.Open(strPath, CFile::modeCreate | CFile::modeWrite))
+	{
+		AfxMessageBox(L"파일 저장 실패!");
+		return;
+	}
+
+	// UTF-8 BOM
+	BYTE bom[] = { 0xEF, 0xBB, 0xBF };
+	file.Write(bom, sizeof(bom));
+
+	file.Write(
+		utf8.GetString(),
+		utf8.GetLength());
+
+	file.Close();
+
+	AfxMessageBox(L"저장되었습니다.");
+}
+```
+
+![](assets/20260910_121115_image.png)
+
+- 실행결과
+- 새 문서, 툴바 기능, 상태바 표시 기능 추가
+
 #### MFC 학습 순서
 
 1. [x] Dialog Based MFC
@@ -1296,5 +1739,5 @@ void CMainFrame::OnPracMsg()
 14. [x] 툴바
 15. [x] Dialog
 16. [ ] ~~MDI(Multiple DI)~~
-17. [ ] 스레드...
-18. [ ] 토이프로젝트 : 메모장(NotePad) 프로젝트
+17. [x] 스레드...
+18. [x] 토이프로젝트 : 메모장(NotePad) 프로젝트
